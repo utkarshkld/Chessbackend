@@ -15,13 +15,7 @@ const io = new Server(server,{
     },
    
 })
-// io.on('create_room',(socket)=>{
-//     const createId = socket.requestId
-    
-    
-//     socket.on()
-    
-// })
+
 const userId = new Set()
 
 io.on('connection',async (socket)=>{
@@ -51,7 +45,7 @@ io.on('connection',async (socket)=>{
     socket.on('share_game_details',async (data)=>{
         const opponentId = data.opponent
         // console.log(data)
-        socket.to(opponentId).emit('receive_game_details',data.currFen)
+        socket.to(opponentId).emit('receive_game_details',{currpgn:data.currpgn,moveSan:data.moveSan})
     })
     
     
