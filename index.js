@@ -17,7 +17,7 @@ const io = new Server(server,{
 })
 
 const userId = new Set()
-
+const userMap = new Map();
 io.on('connection',async (socket)=>{
     // console.log(socket)
     userId.add(socket.id)
@@ -28,6 +28,8 @@ io.on('connection',async (socket)=>{
             socket.emit('opponent_id',{opponent:anotherUserId,color:"b"})
             userId.delete(socket.id)
             userId.delete(anotherUserId)
+            userMap.set(socket.id,anotherUserId)
+            userMap.set(anotherUserId,socket.id)
         }else{
             socket.emit('opponent_id',{opponent:"Invalid"})
         }
@@ -46,6 +48,18 @@ io.on('connection',async (socket)=>{
         const opponentId = data.opponent
         // console.log(data)
         socket.to(opponentId).emit('receive_game_details',{currpgn:data.currpgn,moveSan:data.moveSan})
+    })
+    socket.on('resign_message',(data)=>{
+        const opponentId = data.opponent
+        // console.log(data)
+        socket.to(opponentId).emit('receive_resign_message',{message:data.message,id:socket.id})
+    })
+    socket.on('disconnect',()=>{
+        const opponentId = userMap.get(socket.id)
+        userMap.delete(socket.id)
+        userMap.delete(opponentId)        
+        socket.to(opponentId).emit('receive_disconnect',{disconnect:true})
+        // console.log(socket.id+" disconnected")
     })
     
     
